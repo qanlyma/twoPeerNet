@@ -91,14 +91,11 @@ COMMAND2="docker exec cli1 peer chaincode invoke \
     --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt"
 
 function createAccount() {
-  echo "Opening new account A..."
-  # $COMMAND2 -c '{"Args":["open","A","1000"]}'
-  echo "Opening new account B..."
-  # $COMMAND2 -c '{"Args":["open","B","1000"]}'
-  echo "Opening new account C..."
-  # $COMMAND2 -c '{"Args":["open","C","1000"]}'
-  echo "Opening new account D..."
-  # $COMMAND2 -c 
+  echo "Opening new account ..."
+  $COMMAND2 -c '{"Args":["open","A","1000"]}'
+  $COMMAND2 -c '{"Args":["open","B","1000"]}'
+  $COMMAND2 -c '{"Args":["open","C","1000"]}'
+  $COMMAND2 -c '{"Args":["open","D","1000"]}'
   
   $COMMAND1 -c '{"Args":["create_account","A","A","1000","1000"]}'
   $COMMAND1 -c '{"Args":["create_account","B","B","1000","1000"]}'
@@ -108,40 +105,37 @@ function createAccount() {
 }
 
 function sendTransactions() {
-  echo "Transfering1: A>>>100>>>B"
+  echo "Testing..."
   $COMMAND2 -c '{"Args":["transferm","A","B","100"]}'
-  echo "Transfering1: A>>>100>>>B"
   $COMMAND2 -c '{"Args":["transferm","A","B","100"]}'
-  echo "Transfering2: B>>>100>>>C"
-  $COMMAND2 -c 
-  echo "Opening new account Z..."
-  $COMMAND2 -c '{"Args":["open","Z","1000"]}'
-  echo "Transfering3: C>>>100>>>D"
-  $COMMAND2 -c '{"Args":["transferm","C","D","100"]}'
-  echo "Transfering4: D>>>100>>>A"
-  $COMMAND2 -c '{"Args":["transferm","D","A","100"]}'
+  $COMMAND2 -c '{"Args":["transferm","B","C","100"]}'
+  $COMMAND2 -c '{"Args":["transferm","A","D","100"]}'
+
+  $COMMAND1 -c '{"Args":["test","E","B"]}'
+
+  $COMMAND2 -c '{"Args":["open","Q","1000"]}'
+  $COMMAND2 -c '{"Args":["transferm","C","A","100"]}'
+  
+  $COMMAND1 -c '{"Args":["send_payment","200","C","B"]}'
+  $COMMAND1 -c '{"Args":["test","D","C"]}'
 }
 
 function sendSingle() {
   echo "Transfering..."
-  $COMMAND1 -c '{"Args":["test","C","A"]}'
-  $COMMAND1 -c '{"Args":["create_account","Z","Z","1000","1000"]}'
-  $COMMAND1 -c '{"Args":["send_payment","200","A","B"]}'
-  $COMMAND1 -c '{"Args":["test","D","C"]}'
-  $COMMAND1 -c '{"Args":["create_account","Y","Y","1000","1000"]}'
-  # $COMMAND2 -c '{"Args":["transfer","A","D","200"]}'
+  $COMMAND2 -c '{"Args":["transferm","D","A","200"]}'
 }
 
 function queryAccount() {
   if [[ -z $AC ]]; then
-    # docker exec cli1 peer chaincode query -C mychannel -n simple -c '{"Args":["query","A"]}'
-    # docker exec cli1 peer chaincode query -C mychannel -n simple -c '{"Args":["query","B"]}'
-    # docker exec cli1 peer chaincode query -C mychannel -n simple -c '{"Args":["query","C"]}'
-    # docker exec cli1 peer chaincode query -C mychannel -n simple -c '{"Args":["query","D"]}'
+    docker exec cli1 peer chaincode query -C mychannel -n simple -c '{"Args":["query","A"]}'
+    docker exec cli1 peer chaincode query -C mychannel -n simple -c '{"Args":["query","B"]}'
+    docker exec cli1 peer chaincode query -C mychannel -n simple -c '{"Args":["query","C"]}'
+    docker exec cli1 peer chaincode query -C mychannel -n simple -c '{"Args":["query","D"]}'
     docker exec cli1 peer chaincode query -C mychannel -n smallbank -c '{"Args":["query","A"]}'
     docker exec cli1 peer chaincode query -C mychannel -n smallbank -c '{"Args":["query","B"]}'
     docker exec cli1 peer chaincode query -C mychannel -n smallbank -c '{"Args":["query","C"]}'
     docker exec cli1 peer chaincode query -C mychannel -n smallbank -c '{"Args":["query","D"]}'
+    docker exec cli1 peer chaincode query -C mychannel -n smallbank -c '{"Args":["query","E"]}'
   else 
     docker exec cli1 peer chaincode query -C mychannel -n simple -c '{"Args":["query", "'"$AC"'"]}'
   fi
