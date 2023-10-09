@@ -51,8 +51,8 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	if function == "transfer" {
 		return t.Transfer(stub, args)
 	}
-	if function == "transferm" {
-		return t.Transfer(stub, args)
+	if function == "copy" {
+		return t.Copy(stub, args)
 	}
 
 	return shim.Error(ERROR_WRONG_FORMAT)
@@ -166,10 +166,33 @@ func (t *SimpleChaincode) Transfer(stub shim.ChaincodeStubInterface, args []stri
 	return shim.Success(nil)
 }
 
+// copy the number of money from account1 to account2, should be [copy account1 account2]
+func (t *SimpleChaincode) Copy(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	if len(args) != 2 {
+		return shim.Error(ERROR_WRONG_FORMAT)
+	}
+
+	moneyBytes, err := stub.GetState(args[0])
+	if err != nil {
+		s := fmt.Sprintf(ERROR_SYSTEM, err.Error())
+		return shim.Error(s)
+	}
+	if moneyBytes == nil {
+		return shim.Error(ERROR_ACCOUNT_ABNORMAL)
+	}
+
+	err = stub.PutState(args[1], moneyBytes)
+	if err != nil {
+		s := fmt.Sprintf(ERROR_SYSTEM, err.Error())
+		return shim.Error(s)
+	}
+
+	return shim.Success(nil)
+}
+
 func main() {
 	err := shim.Start(new(SimpleChaincode))
 	if err != nil {
 		fmt.Printf("Error starting chaincode: %v \n", err)
 	}
-
 }
