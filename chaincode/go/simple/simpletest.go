@@ -18,6 +18,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/Workiva/go-datastructures/threadsafe/err"
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	pb "github.com/hyperledger/fabric-protos-go/peer"
 )
@@ -65,7 +66,7 @@ func (t *SimpleChaincode) Open(stub shim.ChaincodeStubInterface, args []string) 
 	}
 
 	account := args[0]
-	money, err := stub.GetState(account)
+	money, _ := stub.GetState(account)
 	if money != nil {
 		return shim.Error(ERROR_ACCOUNT_EXISTING)
 	}

@@ -55,8 +55,8 @@ function networkUp() {
   sleep 3
   createAccount
 
-  # cd crypto-config
-  # ./ccp-generate.sh
+  cd crypto-config
+  ./ccp-generate.sh
 }
 
 COMMAND="docker exec cli1 peer chaincode invoke \
