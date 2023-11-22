@@ -15,10 +15,8 @@
 package main
 
 import (
-	"fmt"
 	"strconv"
 
-	"github.com/Workiva/go-datastructures/threadsafe/err"
 	"github.com/hyperledger/fabric-chaincode-go/shim"
 	pb "github.com/hyperledger/fabric-protos-go/peer"
 )
@@ -52,8 +50,8 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	if function == "transfer" {
 		return t.Transfer(stub, args)
 	}
-	if function == "copy" {
-		return t.Copy(stub, args)
+	if function == "r2w2" {
+		return t.R2w2(stub, args)
 	}
 
 	return shim.Error(ERROR_WRONG_FORMAT)
@@ -71,16 +69,7 @@ func (t *SimpleChaincode) Open(stub shim.ChaincodeStubInterface, args []string) 
 		return shim.Error(ERROR_ACCOUNT_EXISTING)
 	}
 
-	_, err = strconv.Atoi(args[1])
-	if err != nil {
-		return shim.Error(ERROR_WRONG_FORMAT)
-	}
-
-	err = stub.PutState(account, []byte(args[1]))
-	if err != nil {
-		s := fmt.Sprintf(ERROR_SYSTEM, err.Error())
-		return shim.Error(s)
-	}
+	stub.PutState(account, []byte(args[1]))
 
 	return shim.Success(nil)
 }
@@ -91,11 +80,7 @@ func (t *SimpleChaincode) Delete(stub shim.ChaincodeStubInterface, args []string
 		return shim.Error(ERROR_WRONG_FORMAT)
 	}
 
-	err := stub.DelState(args[0])
-	if err != nil {
-		s := fmt.Sprintf(ERROR_SYSTEM, err.Error())
-		return shim.Error(s)
-	}
+	stub.DelState(args[0])
 
 	return shim.Success(nil)
 }
@@ -106,11 +91,7 @@ func (t *SimpleChaincode) Query(stub shim.ChaincodeStubInterface, args []string)
 		return shim.Error(ERROR_WRONG_FORMAT)
 	}
 
-	money, err := stub.GetState(args[0])
-	if err != nil {
-		s := fmt.Sprintf(ERROR_SYSTEM, err.Error())
-		return shim.Error(s)
-	}
+	money, _ := stub.GetState(args[0])
 
 	if money == nil {
 		return shim.Error(ERROR_ACCOUNT_ABNORMAL)
@@ -124,21 +105,11 @@ func (t *SimpleChaincode) Transfer(stub shim.ChaincodeStubInterface, args []stri
 	if len(args) != 3 {
 		return shim.Error(ERROR_WRONG_FORMAT)
 	}
-	money, err := strconv.Atoi(args[2])
-	if err != nil {
-		return shim.Error(ERROR_WRONG_FORMAT)
-	}
+	money, _ := strconv.Atoi(args[2])
 
-	moneyBytes1, err1 := stub.GetState(args[0])
-	if err1 != nil {
-		s := fmt.Sprintf(ERROR_SYSTEM, err1.Error())
-		return shim.Error(s)
-	}
-	moneyBytes2, err2 := stub.GetState(args[1])
-	if err2 != nil {
-		s := fmt.Sprintf(ERROR_SYSTEM, err2.Error())
-		return shim.Error(s)
-	}
+	moneyBytes1, _ := stub.GetState(args[0])
+	moneyBytes2, _ := stub.GetState(args[1])
+
 	if moneyBytes1 == nil || moneyBytes2 == nil {
 		return shim.Error(ERROR_ACCOUNT_ABNORMAL)
 	}
@@ -152,48 +123,31 @@ func (t *SimpleChaincode) Transfer(stub shim.ChaincodeStubInterface, args []stri
 	money1 -= money
 	money2 += money
 
-	err = stub.PutState(args[0], []byte(strconv.Itoa(money1)))
-	if err != nil {
-		s := fmt.Sprintf(ERROR_SYSTEM, err.Error())
-		return shim.Error(s)
-	}
-
-	err = stub.PutState(args[1], []byte(strconv.Itoa(money2)))
-	if err != nil {
-		s := fmt.Sprintf(ERROR_SYSTEM, err.Error())
-		return shim.Error(s)
-	}
+	stub.PutState(args[0], []byte(strconv.Itoa(money1)))
+	stub.PutState(args[1], []byte(strconv.Itoa(money2)))
 
 	return shim.Success(nil)
 }
 
-// copy the number of money from account1 to account2, should be [copy account1 account2]
-func (t *SimpleChaincode) Copy(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	if len(args) != 2 {
+// read 2 account and write 2 account, should be [r2w2 account1 account2 account3 account4]
+func (t *SimpleChaincode) R2w2(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	if len(args) != 4 {
 		return shim.Error(ERROR_WRONG_FORMAT)
 	}
 
-	moneyBytes, err := stub.GetState(args[0])
-	if err != nil {
-		s := fmt.Sprintf(ERROR_SYSTEM, err.Error())
-		return shim.Error(s)
-	}
-	if moneyBytes == nil {
+	moneyBytes1, _ := stub.GetState(args[0])
+	moneyBytes2, _ := stub.GetState(args[1])
+
+	if moneyBytes1 == nil || moneyBytes2 == nil {
 		return shim.Error(ERROR_ACCOUNT_ABNORMAL)
 	}
 
-	err = stub.PutState(args[1], moneyBytes)
-	if err != nil {
-		s := fmt.Sprintf(ERROR_SYSTEM, err.Error())
-		return shim.Error(s)
-	}
+	stub.PutState(args[2], moneyBytes1)
+	stub.PutState(args[3], moneyBytes2)
 
 	return shim.Success(nil)
 }
 
 func main() {
-	err := shim.Start(new(SimpleChaincode))
-	if err != nil {
-		fmt.Printf("Error starting chaincode: %v \n", err)
-	}
+	shim.Start(new(SimpleChaincode))
 }

@@ -44,8 +44,8 @@ function networkUp() {
   docker exec cli1 peer lifecycle chaincode install simple.tar.gz
   docker exec cli2 peer lifecycle chaincode install simple.tar.gz
 
-  docker exec cli1 peer lifecycle chaincode approveformyorg --channelID mychannel --name simple --version 1.0 --init-required --package-id simple_1.0:6bcbc248b82a10b08863dcdf3f9da8681ec95b7336f345caf75aaeafbe2d5e64 --sequence 1 --tls true --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
-  docker exec cli2 peer lifecycle chaincode approveformyorg --channelID mychannel --name simple --version 1.0 --init-required --package-id simple_1.0:6bcbc248b82a10b08863dcdf3f9da8681ec95b7336f345caf75aaeafbe2d5e64 --sequence 1 --tls true --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+  docker exec cli1 peer lifecycle chaincode approveformyorg --channelID mychannel --name simple --version 1.0 --init-required --package-id simple_1.0:98b2cff599dc73e56ff5a3aee9d0f22ae9defa596de5afda2f9413408d5e2897 --sequence 1 --tls true --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+  docker exec cli2 peer lifecycle chaincode approveformyorg --channelID mychannel --name simple --version 1.0 --init-required --package-id simple_1.0:98b2cff599dc73e56ff5a3aee9d0f22ae9defa596de5afda2f9413408d5e2897 --sequence 1 --tls true --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
   docker exec cli1 peer lifecycle chaincode commit -o orderer.example.com:7050 --channelID mychannel --name simple --version 1.0 --init-required --sequence 1 --tls true --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses peer0.org2.example.com:8051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
  
   echo "Initializing the chaincode..."
@@ -77,6 +77,8 @@ function createAccount() {
   $COMMAND -c '{"Args":["open","B","1000"]}'
   $COMMAND -c '{"Args":["open","C","1000"]}'
   $COMMAND -c '{"Args":["open","D","1000"]}'
+  $COMMAND -c '{"Args":["open","E","1000"]}'
+  $COMMAND -c '{"Args":["open","F","1000"]}'
 }
 
 function sendTransactions() {
@@ -89,10 +91,11 @@ function sendTransactions() {
 
 function testReorder() {
   echo "Testing..."
-  $COMMAND -c '{"Args":["transfer","A","C","100"]}'
-  $COMMAND -c '{"Args":["copy","A","B"]}'
-  $COMMAND -c '{"Args":["copy","A","C"]}'
-  $COMMAND -c '{"Args":["copy","A","D"]}'
+  $COMMAND -c '{"Args":["r2w2","E","E","A","A"]}'
+  $COMMAND -c '{"Args":["r2w2","A","A","B","C"]}'
+  $COMMAND -c '{"Args":["r2w2","B","B","D","D"]}'
+  $COMMAND -c '{"Args":["r2w2","D","D","C","C"]}'
+  $COMMAND -c '{"Args":["r2w2","C","C","D","D"]}'
 }
 
 function queryAccount() {
