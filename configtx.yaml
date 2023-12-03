@@ -107,16 +107,16 @@ Orderer: &OrdererDefaults
           ClientTLSCert: ./crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
           ServerTLSCert: ./crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
 
-    BatchTimeout: 2s
+    BatchTimeout: 10s
 
     # Batch Size: Controls the number of messages batched into a block
     BatchSize:
 
-        MaxMessageCount: 10
+        MaxMessageCount: 256
 
         AbsoluteMaxBytes: 99 MB
 
-        PreferredMaxBytes: 512 KB
+        PreferredMaxBytes: 1 MB
 
     Organizations:
 

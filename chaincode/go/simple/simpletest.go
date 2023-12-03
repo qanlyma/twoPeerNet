@@ -50,6 +50,9 @@ func (t *SimpleChaincode) Invoke(stub shim.ChaincodeStubInterface) pb.Response {
 	if function == "transfer" {
 		return t.Transfer(stub, args)
 	}
+	if function == "raw2" {
+		return t.Raw2(stub, args)
+	}
 	if function == "r2w2" {
 		return t.R2w2(stub, args)
 	}
@@ -129,9 +132,9 @@ func (t *SimpleChaincode) Transfer(stub shim.ChaincodeStubInterface, args []stri
 	return shim.Success(nil)
 }
 
-// read 2 account and write 2 account, should be [r2w2 account1 account2 account3 account4]
-func (t *SimpleChaincode) R2w2(stub shim.ChaincodeStubInterface, args []string) pb.Response {
-	if len(args) != 4 {
+// read 2 accounts and write the second, should be [raw2 account1 account2]
+func (t *SimpleChaincode) Raw2(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	if len(args) != 2 {
 		return shim.Error(ERROR_WRONG_FORMAT)
 	}
 
@@ -139,6 +142,26 @@ func (t *SimpleChaincode) R2w2(stub shim.ChaincodeStubInterface, args []string) 
 	moneyBytes2, _ := stub.GetState(args[1])
 
 	if moneyBytes1 == nil || moneyBytes2 == nil {
+		return shim.Error(ERROR_ACCOUNT_ABNORMAL)
+	}
+
+	stub.PutState(args[1], moneyBytes1)
+
+	return shim.Success(nil)
+}
+
+// read 2 accounts and write 2 accounts, should be [r2w2 account1 account2 account3 account4]
+func (t *SimpleChaincode) R2w2(stub shim.ChaincodeStubInterface, args []string) pb.Response {
+	if len(args) != 4 {
+		return shim.Error(ERROR_WRONG_FORMAT)
+	}
+
+	moneyBytes1, _ := stub.GetState(args[0])
+	moneyBytes2, _ := stub.GetState(args[1])
+	moneyBytes3, _ := stub.GetState(args[3])
+	moneyBytes4, _ := stub.GetState(args[4])
+
+	if moneyBytes1 == nil || moneyBytes2 == nil || moneyBytes3 == nil || moneyBytes4 == nil {
 		return shim.Error(ERROR_ACCOUNT_ABNORMAL)
 	}
 

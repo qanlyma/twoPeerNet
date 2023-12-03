@@ -44,8 +44,8 @@ function networkUp() {
   docker exec cli1 peer lifecycle chaincode install simple.tar.gz
   docker exec cli2 peer lifecycle chaincode install simple.tar.gz
 
-  docker exec cli1 peer lifecycle chaincode approveformyorg --channelID mychannel --name simple --version 1.0 --init-required --package-id simple_1.0:98b2cff599dc73e56ff5a3aee9d0f22ae9defa596de5afda2f9413408d5e2897 --sequence 1 --tls true --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
-  docker exec cli2 peer lifecycle chaincode approveformyorg --channelID mychannel --name simple --version 1.0 --init-required --package-id simple_1.0:98b2cff599dc73e56ff5a3aee9d0f22ae9defa596de5afda2f9413408d5e2897 --sequence 1 --tls true --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+  docker exec cli1 peer lifecycle chaincode approveformyorg --channelID mychannel --name simple --version 1.0 --init-required --package-id simple_1.0:43b7fb3d350f9c9049a30bb467cc20d69bc1278d224e4f92a58208088fdd51a2 --sequence 1 --tls true --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
+  docker exec cli2 peer lifecycle chaincode approveformyorg --channelID mychannel --name simple --version 1.0 --init-required --package-id simple_1.0:43b7fb3d350f9c9049a30bb467cc20d69bc1278d224e4f92a58208088fdd51a2 --sequence 1 --tls true --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem
   docker exec cli1 peer lifecycle chaincode commit -o orderer.example.com:7050 --channelID mychannel --name simple --version 1.0 --init-required --sequence 1 --tls true --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses peer0.org2.example.com:8051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt
  
   echo "Initializing the chaincode..."
@@ -53,7 +53,7 @@ function networkUp() {
   docker exec cli1 peer chaincode invoke -o orderer.example.com:7050 -C mychannel -n simple --isInit --ordererTLSHostnameOverride orderer.example.com --tls true --cafile /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem --peerAddresses peer0.org1.example.com:7051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org1.example.com/peers/peer0.org1.example.com/tls/ca.crt --peerAddresses peer0.org2.example.com:8051 --tlsRootCertFiles /opt/gopath/src/github.com/hyperledger/fabric/peer/crypto/peerOrganizations/org2.example.com/peers/peer0.org2.example.com/tls/ca.crt -c '{"Args":[]}'
 
   sleep 3
-  createAccount
+  # createAccount
 
   cd crypto-config
   ./ccp-generate.sh
@@ -84,26 +84,26 @@ function createAccount() {
 function sendTransactions() {
   echo "Sending..."
   $COMMAND -c '{"Args":["transfer","A","B","100"]}'
-  $COMMAND -c '{"Args":["transfer","A","B","100"]}'
-  $COMMAND -c '{"Args":["transfer","A","C","100"]}'
-  $COMMAND -c '{"Args":["transfer","D","A","100"]}'
+  # $COMMAND -c '{"Args":["transfer","A","B","100"]}'
+  # $COMMAND -c '{"Args":["transfer","A","C","100"]}'
+  # $COMMAND -c '{"Args":["transfer","D","A","100"]}'
 }
 
 function testReorder() {
   echo "Testing..."
-  $COMMAND -c '{"Args":["r2w2","E","E","A","A"]}'
-  $COMMAND -c '{"Args":["r2w2","A","A","B","C"]}'
-  $COMMAND -c '{"Args":["r2w2","B","B","D","D"]}'
-  $COMMAND -c '{"Args":["r2w2","D","D","C","C"]}'
-  $COMMAND -c '{"Args":["r2w2","C","C","D","D"]}'
+  $COMMAND -c '{"Args":["raw2","A","B"]}'
+  $COMMAND -c '{"Args":["raw2","C","D"]}'
+  $COMMAND -c '{"Args":["raw2","B","F"]}'
+  $COMMAND -c '{"Args":["raw2","B","C"]}'
+  $COMMAND -c '{"Args":["raw2","B","C"]}'
 }
 
 function queryAccount() {
   if [[ -z $AC ]]; then
-    docker exec cli1 peer chaincode query -C mychannel -n simple -c '{"Args":["query","A"]}'
-    docker exec cli1 peer chaincode query -C mychannel -n simple -c '{"Args":["query","B"]}'
-    docker exec cli1 peer chaincode query -C mychannel -n simple -c '{"Args":["query","C"]}'
-    docker exec cli1 peer chaincode query -C mychannel -n simple -c '{"Args":["query","D"]}'
+    docker exec cli1 peer chaincode query -C mychannel -n simple -c '{"Args":["query","c"]}'
+    docker exec cli1 peer chaincode query -C mychannel -n simple -c '{"Args":["query","e"]}'
+    docker exec cli1 peer chaincode query -C mychannel -n simple -c '{"Args":["query","g"]}'
+    docker exec cli1 peer chaincode query -C mychannel -n simple -c '{"Args":["query","g"]}'
   else 
     docker exec cli1 peer chaincode query -C mychannel -n simple -c '{"Args":["query", "'"$AC"'"]}'
   fi
