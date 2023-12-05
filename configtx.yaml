@@ -107,7 +107,7 @@ Orderer: &OrdererDefaults
           ClientTLSCert: ./crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
           ServerTLSCert: ./crypto-config/ordererOrganizations/example.com/orderers/orderer.example.com/tls/server.crt
 
-    BatchTimeout: 10s
+    BatchTimeout: 5s
 
     # Batch Size: Controls the number of messages batched into a block
     BatchSize:

@@ -158,8 +158,8 @@ func (t *SimpleChaincode) R2w2(stub shim.ChaincodeStubInterface, args []string) 
 
 	moneyBytes1, _ := stub.GetState(args[0])
 	moneyBytes2, _ := stub.GetState(args[1])
-	moneyBytes3, _ := stub.GetState(args[3])
-	moneyBytes4, _ := stub.GetState(args[4])
+	moneyBytes3, _ := stub.GetState(args[2])
+	moneyBytes4, _ := stub.GetState(args[3])
 
 	if moneyBytes1 == nil || moneyBytes2 == nil || moneyBytes3 == nil || moneyBytes4 == nil {
 		return shim.Error(ERROR_ACCOUNT_ABNORMAL)
